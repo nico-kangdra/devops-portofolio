@@ -3,7 +3,7 @@ How to create a Reverse Proxy with Nginx
 1. Install nginx on your machine
 sudo apt install nginx -y
 
-2. Change the placeholder in nginx-template.conf 
+2. Change the placeholder in nginx-template.conf and place it to /etc/nginx/conf.d/example.conf
 Examples:
 <domain_name> -> example.domain.com
 <app_ipaddress> -> 127.0.0.1
