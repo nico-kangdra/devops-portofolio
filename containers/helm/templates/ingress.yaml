@@ -1,0 +1,49 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: webapigateway-ingress
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-cert
+spec:
+  ingressClassName: nginx
+  tls:
+  - hosts:
+    - {{ $.Values.ingress.webapiHost }}
+    secretName: webapigateway-cert
+  rules:
+  - host: {{ $.Values.ingress.webapiHost }}
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: webapigateway-service
+            port:
+              number: 80
+
+---
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: modelapi-ingress
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-cert
+spec:
+  ingressClassName: nginx
+  tls:
+  - hosts:
+    - {{ $.Values.ingress.modelapiHost }}
+    secretName: modelapi-cert
+  rules:
+  - host: {{ $.Values.ingress.modelapiHost }}
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: modelapi-service
+            port:
+              number: 80

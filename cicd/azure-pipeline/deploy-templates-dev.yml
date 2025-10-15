@@ -1,0 +1,112 @@
+steps:
+  ### Set checkout config
+  - checkout: self
+    clean: true
+    fetchDepth: 2
+
+  ### Detect all changed files and folders
+  - script: |
+      files=$(git diff --name-only HEAD~1 HEAD | paste -sd, -)
+      echo "##vso[task.setvariable variable=CHANGEDFOLDERS]$files"
+    displayName: 'Detect All Changes'
+
+  ### Step 1: Login to Azure and ACR
+  - task: AzureCLI@2
+    displayName: 'Login to Azure and Azure Container Registry'
+    inputs:
+      azureSubscription: $(SUBSCRIPTION)
+      scriptType: bash
+      scriptLocation: inlineScript
+      inlineScript: |
+        echo $(ACRGERPASSWORD) | docker login -u $(ACRGERUSERNAME) $(ACRGERLOGINSERVER) --password-stdin
+        echo 'Tag: $(TAG)'
+        echo 'Changes: $(CHANGEDFOLDERS)'
+
+  ### Step 2: Build and Push Images
+  - template: pipelines/container-templates-dev.yml
+    parameters:
+      DOCKERPATH: 'Services/Model/Model.API'
+      IMAGENAME: 'modelapi'
+
+  - template: pipelines/container-templates-dev.yml
+    parameters:
+      DOCKERPATH: 'Services/User/User.API'
+      IMAGENAME: 'userapi'
+
+  - template: pipelines/container-templates-dev.yml
+    parameters:
+      DOCKERPATH: 'Services/Order/Order.API'
+      IMAGENAME: 'orderapi'
+
+  - template: pipelines/container-templates-dev.yml
+    parameters:
+      DOCKERPATH: 'Services/Patient/Patient.API'
+      IMAGENAME: 'patientapi'
+
+  - template: pipelines/container-templates-dev.yml
+    parameters:
+      DOCKERPATH: 'Services/Product/Product.API'
+      IMAGENAME: 'productapi'
+
+  - template: pipelines/container-templates-dev.yml
+    parameters:
+      DOCKERPATH: 'Services/Scan/Scan.API'
+      IMAGENAME: 'scanapi'
+
+  - template: pipelines/container-templates-dev.yml
+    parameters:
+      DOCKERPATH: 'Services/FormBuilder/FormBuilder.API'
+      IMAGENAME: 'formbuilderapi'
+
+  - task: Bash@3
+    condition: and(succeeded(), or(eq(variables['Build.Reason'], 'Manual'), ne(variables['runningTask'], '')))
+    displayName: 'Build & Push webapigateway'
+    inputs:
+      targetType: 'inline'
+      script: |
+        set -e
+        chmod +x subgraph.sh
+        ./subgraph.sh ApiGateways/Web.ApiGateway/appsettings.Development.json Services
+        echo 'Building Images $(ACRGERLOGINSERVER)/webapigateway:$(TAG)...'
+        docker build --no-cache -t $(ACRGERLOGINSERVER)/webapigateway:$(TAG) . -f ApiGateways/Web.ApiGateway/Dockerfile
+        docker push $(ACRGERLOGINSERVER)/webapigateway:$(TAG)
+        docker rmi $(ACRGERLOGINSERVER)/webapigateway:$(TAG)
+        docker system prune -a --volumes -f
+
+  ### Step 3: Run EF Migration
+  - task: Bash@3
+    condition: and(succeeded(), or(eq(variables['Build.Reason'], 'Manual'), ne(variables['runningTask'], '')))
+    displayName: 'EF Migration'
+    inputs:
+      targetType: 'inline'
+      script: |
+        set -e
+        docker build -t ef-migration . -f DatabaseSetup/Dockerfile
+        docker run --rm \
+          -e ENVIRONMENT=Development \
+          -e AZURE_CLIENT_ID=$(AZURECLIENTID) \
+          -e AZURE_TENANT_ID=$(AZURETENANTID) \
+          -e AZURE_CLIENT_SECRET=$(AZURECLIENTSECRET) \
+          ef-migration
+        docker rmi ef-migration
+        docker system prune -a --volumes -f
+        
+  ### Step 4: Deploy to VM
+  - task: SSH@0
+    displayName: 'Deploy to VM Azure'
+    condition: and(succeeded(), ne(variables['runningTask'], ''))
+    inputs:
+      sshEndpoint: 'Azure SSH'
+      runOptions: 'inline'
+      inline: |
+        echo 'SSH connection established!'
+        echo "Login to ACR..." 
+        echo $(ACRGERPASSWORD) | docker login -u $(ACRGERUSERNAME) $(ACRGERLOGINSERVER) --password-stdin 2>/dev/null
+        cd $(FOLDERS)
+        export TAG=$(TAG)
+        IFS=',' read -ra TASKARRAY <<< "$(runningTask)"
+        for task in "${TASKARRAY[@]}"; do
+          echo "Deploying $task:$(TAG)..."
+          tmux new-session -d -s deploy-$task "./deploy.sh $task $(TAG)"
+        done
+        tmux new-session -d -s monitor "./deploy-webapi.sh $(TAG)"

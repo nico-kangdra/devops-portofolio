@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+{% block ul %}
+<li><a href="/" class="btn btn-outline-dark">Home</a></li>
+<li><a href="/courts" class="btn btn-outline-dark">Courts</a></li>
+{% if session.get("token") %}
+<li><a href="/booking" class="btn btn-outline-dark">Bookings</a></li>
+<li><a href="/profile" class="btn btn-dark">Profile</a></li>
+{% else %}
+<li><a href="/login" class="btn btn-dark">Login</a></li>
+{% endif %}
+{% endblock ul %}
+{% block sub %}
+<a href="/" class="btn btn-outline-dark">Home</a>
+<a href="/courts" class="btn btn-outline-dark">Courts</a>
+<a href="/booking" class="btn btn-outline-dark">Bookings</a>
+{% if session.get("token") %}
+<a href="/profile" class="btn btn-dark">Profile</a>
+{% else %}
+<a href="/login" class="btn btn-dark">Login</a>
+{% endif %}
+{% endblock sub %}
+{% block main %}
+<div class="container-fluid">
+    <div class="row justify-content-center mt-5">
+        <div class="col-md-6">
+            <form method="post" action="/login/admin">
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" class="form-control" id="email" name="email" placeholder="Enter your email"
+                        required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" class="form-control" id="password" name="password"
+                        placeholder="Enter your password" minlength="6" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Login</button>
+            </form>
+            <br>
+            {% for message in get_flashed_messages() %}
+            <h5 class="alert alert-danger">{{ message }}</h5>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

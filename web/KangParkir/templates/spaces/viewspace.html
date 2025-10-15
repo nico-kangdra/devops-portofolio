@@ -1,0 +1,66 @@
+{% extends 'base.html' %} {% block main %}
+<!-- Styles -->
+<style>
+  select option:disabled {
+    background-color: gray;
+    color: white; /* Optionally change text color */
+  }
+
+  .img-container {
+    width: 100%;
+    max-width: 800px; /* Set a maximum width for better responsiveness */
+    margin: 0 auto; /* Center the container horizontally */
+    text-align: center; /* Center the content within the container */
+  }
+
+  .img-top {
+    width: 100%;
+    height: auto;
+    object-fit: contain;
+    aspect-ratio: 16/9;
+  }
+
+  span {
+    font-size: x-large;
+  }
+  h2,
+  h5 {
+    font-weight: bold;
+  }
+  hr {
+    border: 1px solid black;
+  }
+</style>
+
+<!-- Content -->
+<div class="img-container">
+  <img
+    class="d-block w-100 img-top"
+    src="{{space['image']}}"
+    alt="Foto {{ space['name'] }}"
+  />
+
+  <br /><br />
+  <h2>{{space['name']}}</h2>
+  <br />
+  <p><span>⏰</span> Opening Hours: {{ space['hours'] }}</p>
+  <p><span>📞</span> Phone Number: {{space['phone']}}</p>
+  <p><span>🚗</span> Type: {{space['type']|capitalize}}</p>
+  <p><span>💵</span> Harga Mobil: {{space['price']}} {{space['pay']}}</p>
+  <p>
+    <span>📍</span> Location:
+    <a target="_blank" href="{{space['link']}}">{{space['link']}}</a>
+  </p>
+<hr><br>
+  {% if space['status'] == "open" %}
+  {% if session.get('token') %}
+  <a href="/booking/{{space['name']}}" class="btn btn-primary">Pesan Sekarang</a>
+  {% else %}
+  <a href="/login" class="btn btn-warning">Login Dulu</a>
+  {% endif %}
+  {% else %}
+  <h2 style="color: red; font-style: italic;">Parking Space Closed</h2>
+  {% endif %}
+</div>
+
+{% endblock main %}

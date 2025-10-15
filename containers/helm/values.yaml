@@ -1,0 +1,18 @@
+repository: test.azurecr.io
+pullSecret: wako-acr-dev
+environment: Development
+tag: latest
+
+ingress:
+  webapiHost: webapigateway.test.com
+  modelapiHost: modelapi.test.com
+
+apis:
+  - name: modelapi
+  - name: userapi
+  - name: formbuilderapi
+  - name: orderapi
+  - name: patientapi
+  - name: productapi
+  - name: scanapi
+  - name: webapigateway

@@ -1,0 +1,38 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: appsettings-config
+data:
+  appsettings.json: |
+    {
+      "Services": {
+        "Model": {
+          "Name": "modelapi",
+          "URL": "http://modelapi-service/modelapi"
+        },
+        "Order": {
+          "Name": "orderapi",
+          "URL": "http://orderapi-service/orderapi"
+        },
+        "Patient": {
+          "Name": "patientapi",
+          "URL": "http://patientapi-service/patientapi"
+        },
+        "Product": {
+          "Name": "productapi",
+          "URL": "http://productapi-service/productapi"
+        },
+        "Scan": {
+          "Name": "scanapi",
+          "URL": "http://scanapi-service/scanapi"
+        },
+        "User": {
+          "Name": "userapi",
+          "URL": "http://userapi-service/userapi"
+        },
+        "FormBuilder": {
+          "Name": "formbuilderapi",
+          "URL": "http://formbuilderapi-service/formbuilderapi"
+        }
+      }
+    }

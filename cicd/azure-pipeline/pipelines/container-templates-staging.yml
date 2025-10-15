@@ -1,0 +1,41 @@
+parameters:
+  - name: DOCKERPATH
+    type: string
+  - name: IMAGENAME
+    type: string
+  - name: containerName
+    type: string
+  - name: targetFolder
+    type: string
+
+steps:
+  - task: Bash@3
+    displayName: 'Build & Push staging/${{ parameters.IMAGENAME }}'
+    inputs:
+      targetType: 'inline'
+      script: |
+        set -e
+        if [ "${{ parameters.IMAGENAME }}" = "webapigateway" ]; then
+          chmod +x ./subgraph.sh
+          ./subgraph.sh ApiGateways/Web.ApiGateway/appsettings.Staging.json Services
+        fi
+        docker build --no-cache -t $(ACRGERLOGINSERVER)/staging/${{ parameters.IMAGENAME }}:$(TAG) . -f ${{ parameters.DOCKERPATH }}/Dockerfile
+        docker push $(ACRGERLOGINSERVER)/staging/${{ parameters.IMAGENAME }}:$(TAG)
+        docker rmi $(ACRGERLOGINSERVER)/staging/${{ parameters.IMAGENAME }}:$(TAG)
+        docker system prune -a --volumes -f
+        sleep 5
+
+  - task: AzureContainerApps@1
+    displayName: 'Deploy to ${{ parameters.containerName }}'
+    inputs:
+      azureSubscription: $(SUBSCRIPTIONSTAGING)
+      resourceGroup: '$(RESOURCEGROUPSTAGING)'
+      containerAppName: '${{ parameters.containerName }}'
+      imageToDeploy: '$(ACRGERLOGINSERVER)/staging/${{ parameters.IMAGENAME }}:$(TAG)'
+      ingress: external
+      containerAppEnvironment: $(ENVIRONMENTNAMESTAGING)
+      targetPort: 80
+      location: $(LOCATION)
+      acrName: $(ACRGERNAME)
+      acrUsername: $(ACRGERUSERNAME)
+      acrPassword: $(ACRGERPASSWORD)

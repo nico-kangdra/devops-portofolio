@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Kang Parkir - Nyari dan Booking Tempat Parkir</title>
+    <link
+      rel="icon"
+      href="{{url_for('static', filename='icon.png')}}"
+      type="image/x-icon"
+    />
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+    />
+    <style>
+      /* Reset some default styles */
+      body,
+      h1,
+      h2,
+      ul,
+      li {
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font-family: Verdana, Geneva, Tahoma, sans-serif;
+        line-height: 1.6;
+        background-color: #f2f0e9;
+      }
+
+      header {
+        padding: 10px 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      header a img {
+        max-width: 165px;
+        margin-right: 20px;
+      }
+
+      .nav-buttons ul {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: flex;
+      }
+
+      .nav-buttons ul li {
+        margin-right: 10px;
+      }
+
+      main {
+        padding: 20px;
+      }
+
+      #subHeader {
+        display: none;
+      }
+
+      footer {
+        bottom: 0;
+      }
+
+      @media screen and (max-width: 570px) {
+        .nav-buttons ul {
+          display: none;
+        }
+
+        header a {
+          margin: auto;
+        }
+
+        #subHeader {
+          display: flex;
+          padding: 10px 20px;
+          justify-content: center;
+          align-items: center;
+        }
+
+        #subHeader a {
+          margin-left: 5px;
+          margin-right: 5px;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <header>
+      <a href="/">
+        <img
+          src="{{url_for('static', filename='logo.png')}}"
+          alt="Kang Parkir"
+        />
+      </a>
+      <nav>
+        <div class="nav-buttons">
+          <ul>
+            {% if nav == "admin" %}
+            <li>{% block admin1 %}{% endblock admin1 %}</li>
+            {% else %}
+            <li>
+              <a
+                href="/"
+                class="btn {% if nav == 'home' %} btn-dark {% else %} btn-outline-dark {% endif %}"
+                >Home</a
+              >
+            </li>
+            <li>
+              <a
+                href="/spaces"
+                class="btn {% if nav == 'spaces' %} btn-dark {% else %} btn-outline-dark {% endif %}"
+                >Parkiran</a
+              >
+            </li>
+            {% if session.get("token") %}
+            <li>
+              <a
+                href="/profile"
+                class="btn {% if nav == 'profile' %} btn-dark {% else %} btn-outline-dark {% endif %}"
+                >Profile</a
+              >
+            </li>
+            {% else %}
+            <li>
+              <a
+                href="/login"
+                class="btn {% if nav == 'login' %} btn-dark {% else %} btn-outline-dark {% endif %}"
+                >Login</a
+              >
+            </li>
+            {% endif %} {% endif %}
+          </ul>
+        </div>
+      </nav>
+    </header>
+    <div id="subHeader">
+      {% if nav == "admin" %} {% block admin2 %}{% endblock admin2 %} {% else %}
+      <a
+        href="/"
+        class="btn {% if nav == 'home' %} btn-dark {% else %} btn-outline-dark {% endif %}"
+        >Home</a
+      >
+      <a
+        href="/spaces"
+        class="btn {% if nav == 'spaces' %} btn-dark {% else %} btn-outline-dark {% endif %}"
+        >Spaces</a
+      >
+      {% if session.get("token") %}
+      <a
+        href="/profile"
+        class="btn {% if nav == 'profile' %} btn-dark {% else %} btn-outline-dark {% endif %}"
+        >Profile</a
+      >
+      {% else %}
+      <a
+        href="/login"
+        class="btn {% if nav == 'login' %} btn-dark {% else %} btn-outline-dark {% endif %}"
+        >Login</a
+      >
+      {% endif %} {% endif %}
+    </div>
+    <main>{% block main %} {% endblock main %}</main>
+
+    <footer>
+      <p>&nbsp;&nbsp; &copy; 2024 | KANG PARKIR</p>
+    </footer>
+  </body>
+</html>

@@ -1,0 +1,56 @@
+{% extends 'base.html' %} {% block main %}
+<h2
+  style="
+    text-align: center;
+    font-weight: bold;
+  "
+>
+  Change Password: {{email}}
+</h2>
+<div class="container-fluid">
+  <div class="row justify-content-center mt-5">
+    <div class="col-md-6">
+      <form method="post" action="/admin/change/{{email}}">
+        <div class="form-group">
+          <label for="oldpw">Old Password</label>
+          <input
+            type="password"
+            class="form-control"
+            id="oldpw"
+            name="oldpw"
+            placeholder="Enter your Old Password"
+            required
+          />
+        </div>
+        <div class="form-group">
+          <label for="newpw">New Password</label>
+          <input
+            type="password"
+            class="form-control"
+            id="newpw"
+            name="newpw"
+            placeholder="Enter your New Password"
+            required
+          />
+        </div>
+        <div class="form-group">
+          <label for="conpw">Confirm Password</label>
+          <input
+            type="password"
+            class="form-control"
+            id="conpw"
+            name="conpw"
+            placeholder="Enter your Confirm Password"
+            required
+          />
+        </div>
+        <button type="submit" class="btn btn-primary">Submit</button>
+      </form>
+      <br />
+      {% for message in get_flashed_messages() %}
+      <h5 class="alert alert-success">{{ message }}</h5>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}

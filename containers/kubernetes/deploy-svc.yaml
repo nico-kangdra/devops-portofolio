@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: myimage-deployment
+  labels:
+    app: myimage
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: myimage
+  template:
+    metadata:
+      labels:
+        app: myimage
+    spec:
+      containers:
+        - name: myimage
+          image: nkangdra/my-image:latest
+          ports:
+            - containerPort: 3000
+          volumeMounts:
+            - name: config-myimage-volume
+              mountPath: /app/.env
+              subPath: .env
+            - name: myimage-storage
+              mountPath: /app/files
+      volumes:
+        - name: config-myimage-volume
+          configMap:
+            name: myimage-config
+        - name: myimage-storage
+          persistentVolumeClaim:
+            claimName: myimage-pvc
+      imagePullSecrets:
+        - name: nkangdra
+
+---
+

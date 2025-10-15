@@ -1,0 +1,15 @@
+services:
+  owncloud:
+    image: owncloud
+    container_name: owncloud
+    restart: always
+    entrypoint: ["./init.sh"]
+    ports:
+      - "8000:80"
+    volumes:
+      - ./next:/var/www/html/data
+      - ./nextconf:/var/www/html/config
+      - ./config/cnf.php:/var/www/html/config/config.php
+      - ./config/init.sh:/var/www/html/init.sh
+    environment:
+      - OWNCLOUD_TRUSTED_DOMAINS=example.test.com

@@ -1,0 +1,8 @@
+services:
+  webhook:
+    build: .
+    image: webhook:latest
+    ports:
+      - "9999:3000"
+    container_name: az-webhook
+    restart: always

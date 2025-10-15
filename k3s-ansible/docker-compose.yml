@@ -1,0 +1,11 @@
+services:
+  k3s-ansible:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    stdin_open: true
+    tty: true
+    volumes:
+      - ./inventory.yml:/ansible/inventory.yml
+    command: bash
+    container_name: k3s-ansible

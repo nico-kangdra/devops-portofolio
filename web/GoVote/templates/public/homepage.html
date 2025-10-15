@@ -1,0 +1,33 @@
+{% extends 'base.html' %} {% block title %} Welcome to Go-Vote {% endblock title
+%} {% block body %}
+<div class="login-section row justify-content-center align-items-center">
+  <div class="col-md-8 col-sm-12 p-5 login-header d-flex align-items-center">
+    <div class="wrapper-text">
+      <h1 class="fw-bold fs-1 text-white col-12">
+        Your Digital Democracy Platform for a Stronger Voice
+      </h1>
+      <p class="text-white col">
+        E-Vox: Empower Your Voice. Transform Democracy. Your one-stop
+        destination for secure and accessible online voting, giving you the
+        power to shape the future
+      </p>
+      <div class="d-md-none d-grid gap-2">
+        <a href="{{url_for('home')}}" class="btn btn-primary">Login</a>
+        <a href="{{url_for('preview')}}" class="btn btn-success">Preview</a>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4 d-none d-md-block">
+    <div class="card">
+      <div class="card-body">
+        <h3 class="text-center">Welcome to Go-Vote</h3>
+        <br />
+        <div class="d-grid gap-2">
+          <a href="{{url_for('home')}}" class="btn btn-primary">Login</a>
+          <a href="{{url_for('preview')}}" class="btn btn-success">Preview</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock body %}

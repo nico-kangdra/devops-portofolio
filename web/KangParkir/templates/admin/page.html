@@ -1,0 +1,109 @@
+{% extends 'base.html' %} {% block admin1 %}
+<a href="/logout" class="btn btn-danger">Logout</a>
+{% endblock admin1 %} {% block admin2 %}
+<a href="/logout" class="btn btn-danger">Logout</a>
+{% endblock admin2 %} {% block main %}
+
+<style>
+  .card {
+    width: 100%;
+  }
+
+  .card-img-top {
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+    aspect-ratio: 16/9;
+  }
+
+  hr {
+    border: 1px solid black;
+  }
+
+  h2 {
+    font-weight: bold;
+    text-align: center;
+  }
+  .img-container {
+    width: 100%;
+    max-width: 800px; /* Set a maximum width for better responsiveness */
+    margin: 0 auto; /* Center the container horizontally */
+    text-align: center; /* Center the content within the container */
+  }
+
+  .img-top {
+    width: 100%;
+    height: auto;
+    object-fit: contain;
+    aspect-ratio: 16/9;
+  }
+
+  span {
+    font-size: x-large;
+  }
+
+  h2,
+  h5 {
+    font-weight: bold;
+  }
+</style>
+<div class="container-fluid">
+  <div id="view-mode">
+    <h2>{{space["name"]}}</h2>
+
+    <br />
+    <div class="img-container">
+      <img
+        class="d-block w-100 img-top"
+        src="{{space['image']}}"
+        alt="Foto {{ space['name'] }}"
+      />
+
+      <br />
+      <p><span>⏰</span> Opening Hours: {{ space['hours'] }}</p>
+      <p><span>📞</span> Phone Number: {{space['phone']}}</p>
+      <p><span>🚗</span> Type: {{space['type']|capitalize}}</p>
+      {% if space['type'] == "mobil" %}
+      <p><span>💵</span> Harga Mobil: {{space['pricecar']}} {{space['pay']}}</p>
+      {% elif space['type'] == "motor" %}
+      <p>
+        <span>💵</span> Harga Motor: {{space['pricemotor']}} {{space['pay']}}
+      </p>
+      {% else %}
+      <p><span>💵</span> Harga Mobil: {{space['pricecar']}} {{space['pay']}}</p>
+      <p>
+        <span>💵</span> Harga Motor: {{space['pricemotor']}} {{space['pay']}}
+      </p>
+      {% endif %}
+      <p>
+        <span>📍</span> Location:
+        <a target="_blank" href="{{space['link']}}">{{space['link']}}</a>
+      </p>
+      <a href="/admin/change/{{session['remail']}}" class="btn btn-danger">Change Password</a><br><br> 
+      <a href="{{url_for('manage_slot_get', space=space['name'])}}" class="btn btn-primary">Manage Slot</a>
+      <hr />
+      <h5><span>💵</span> Today Revenue <span>💵</span></h5>
+      <h5 style="color: green">
+        {% if space.get('salary') %}
+        Rp.{{ "{:,.0f}".format(space['salary'][dates]) }}
+        {% else %}
+        Rp.0
+        {% endif %}
+      </h5>
+      <br />
+      <h5>Parking Spaces Status</h5>
+      <a
+        class="btn {%if space['status'] == 'open'%} btn-success {%else%} btn-outline-success {% endif %}"
+        href="{{url_for('change', name=space['name'], status='open')}}"
+        >OPEN</a
+      >
+      <a
+        class="btn {%if space['status'] == 'closed'%} btn-danger {%else%} btn-outline-danger {% endif %}"
+        href="{{url_for('change', name=space['name'], status='closed')}}"
+        >CLOSED</a
+      >
+      <br><br>
+    </div>
+  </div>
+</div>
+{% endblock main%}

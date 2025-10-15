@@ -1,0 +1,29 @@
+parameters:
+  - name: DOCKERPATH
+    type: string
+  - name: IMAGENAME
+    type: string
+
+
+steps:
+  - task: Bash@3
+    displayName: 'Build & Push ${{ parameters.IMAGENAME }}'
+    inputs:
+      targetType: 'inline'
+      script: |
+        set -e
+        echo 'Building Images $(ACRGERLOGINSERVER)/${{ parameters.IMAGENAME }}:$(TAG)...'
+        docker build --no-cache -t $(ACRGERLOGINSERVER)/${{ parameters.IMAGENAME }}:$(TAG) . -f ${{ parameters.DOCKERPATH }}/Dockerfile
+        docker push $(ACRGERLOGINSERVER)/${{ parameters.IMAGENAME }}:$(TAG)
+        docker rmi $(ACRGERLOGINSERVER)/${{ parameters.IMAGENAME }}:$(TAG)
+        docker system prune -a --volumes -f
+        sleep 5
+        
+        if [ -z "$(runningTask)" ]; then
+          # Set runningTask
+          echo "##vso[task.setvariable variable=runningTask;]${{ parameters.IMAGENAME }}"
+        else
+          # Append to runningTask
+          echo "##vso[task.setvariable variable=runningTask;]$(runningTask),${{ parameters.IMAGENAME }}"
+        fi
+        echo $(runningTask)

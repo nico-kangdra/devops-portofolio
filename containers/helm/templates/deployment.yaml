@@ -1,0 +1,43 @@
+{{- range .Values.apis }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: "{{ .name }}-deployment"
+  labels:
+    app: {{ .name }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .name }}
+    spec:
+      containers:
+        - name: {{ .name }}
+          image: "{{ $.Values.repository }}/{{ if eq $.Values.environment "Staging" }}staging/{{ end }}{{ .name }}:{{ $.Values.tag }}"
+          envFrom:
+            - configMapRef:
+                name: wako-config
+          ports:
+            - containerPort: 80
+          {{- if eq .name "webapigateway" }}
+          volumeMounts:
+            - name: webapigateway-volume
+              mountPath: /app/appsettings.Development.json
+              subPath: appsettings.json
+          {{- end }}
+      {{- if eq .name "webapigateway" }}
+      volumes:
+        - name: webapigateway-volume
+          configMap:
+            name: appsettings-config
+      {{- end }}
+      imagePullSecrets:
+        - name: {{ $.Values.pullSecret }}
+
+---
+
+{{- end }}

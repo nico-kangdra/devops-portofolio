@@ -1,0 +1,37 @@
+image: docker:latest
+
+services:
+  - docker:dind
+
+stages:
+  - build
+  - deploy
+
+variables:
+  IMAGE_TAG: $CI_PIPELINE_IID
+
+build:
+  stage: build
+  script:
+    - echo "Building Docker image..."
+    - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USERNAME $CI_REGISTRY --password-stdin
+    - docker buildx create --use
+    - docker buildx build --platform linux/amd64,linux/arm64 -t $CI_REGISTRY_IMAGE:$IMAGE_TAG --push .
+    - docker buildx rm
+
+deploy:
+  stage: deploy
+  script:
+    - echo "Deploying to VM..."
+    - chmod 600 $ID_RSA
+    - |
+      ssh -i $ID_RSA -o StrictHostKeyChecking=no $VM_USERNAME@$VM_HOST << EOF
+        echo "Pulling the latest Docker image..."
+        echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USERNAME $CI_REGISTRY --password-stdin
+        docker pull $CI_REGISTRY_IMAGE:$IMAGE_TAG
+        docker rm -f my-image
+        echo "Starting the new container..."
+        docker run -d --name my-image -p 3000:3000 $CI_REGISTRY_IMAGE:$IMAGE_TAG
+        docker buildx rm
+        echo "Done"
+      EOF

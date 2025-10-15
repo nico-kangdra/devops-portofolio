@@ -1,0 +1,8 @@
+services:
+  kang-parkir:
+    build: .
+    image: kangparkir:latest
+    ports:
+      - "5030:8080"
+    container_name: kang-parkir
+    restart: always

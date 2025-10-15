@@ -1,0 +1,221 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin Panel</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Arial', sans-serif;
+            line-height: 1.6;
+            padding: 20px;
+            background: #f5f5f5;
+            color: #333;
+        }
+        h1, h2 { 
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+        .role-input {
+            margin: 10px 0;
+            padding: 10px;
+            background: white;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        input[type="number"], input[type="text"] {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-right: 10px;
+            width: 80px;
+        }
+        @media (max-width: 600px) {
+            body {
+                padding: 10px;
+            }
+            .role-input {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 5px;
+                align-items: center;
+            }
+            input[type="number"], input[type="text"] {
+                width: 60px;
+                margin-right: 5px;
+            }
+            .game-card {
+                padding: 15px;
+            }
+        }
+        button {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+            transition: background 0.3s;
+        }
+        button:hover {
+            background: #2980b9;
+        }
+        button[type="submit"] {
+            background: #2ecc71;
+            display: block;
+            width: 100%;
+            margin-top: 20px;
+        }
+        button[type="submit"]:hover {
+            background: #27ae60;
+        }
+        .game-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .game-card h3 {
+            color: #3498db;
+            margin-bottom: 10px;
+        }
+        .game-card ul {
+            list-style: none;
+            padding: 10px 0;
+        }
+        .game-card li {
+            padding: 5px 0;
+        }
+        a {
+            color: #3498db;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+        <h1>Create New Game</h1>
+        <a href="/admin/logout" style="text-decoration: none;">
+            <button type="button" style="background: #e74c3c;">Logout</button>
+        </a>
+    </div>
+    <form action="/create_game" method="POST">
+        <div class="role-input">
+            <label>Villagers:</label>
+            <input type="number" name="villagers" min="0" value="0">
+        </div>
+        <div class="role-input">
+            <label>Werewolves:</label>
+            <input type="number" name="werewolves" min="0" value="0">
+        </div>
+        <div class="role-input">
+            <label>Seer:</label>
+            <input type="number" name="seer" min="0" value="0">
+        </div>
+        <div class="role-input">
+            <label>Doctor:</label>
+            <input type="number" name="doctor" min="0" value="0">
+        </div>
+        <div id="custom-roles">
+            <!-- Custom roles will be added here -->
+        </div>
+        <button type="button" onclick="addCustomRole()">+ Add Custom Role</button>
+        <button type="submit">Create Game</button>
+    </form>
+
+    <script>
+        function addCustomRole() {
+            const container = document.getElementById('custom-roles');
+            const div = document.createElement('div');
+            div.className = 'role-input';
+            div.innerHTML = `
+                <label>Custom Role:</label>
+                <input type="text" name="custom_roles[]" required>
+                <input type="number" name="custom_counts[]" min="0" value="1" required>
+                <button type="button" onclick="this.parentElement.remove()">Remove</button>
+            `;
+            container.appendChild(div);
+        }
+    </script>
+
+    <h2>Active Games</h2>
+    {% for code, game in games.items() %}
+    <div class="game-card" data-revealed="{{ game.roles_revealed }}">
+        <h3>Game Code: {{ code }}</h3>
+        <p>Roles: {{ game.roles|join(', ') }}</p>
+        <p>Players ({{ game.players|length }}/{{ game.roles|length }}):</p>
+        <ul>
+        {% for player_id, player_info in game.players.items() %}
+            <li>{{ player_info.name }}{% if game.roles_revealed %} - {{ player_info.role }}{% endif %}</li>
+        {% endfor %}
+        </ul>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px;">
+            {% if not game.roles_revealed and game.players|length == game.roles|length %}
+            <a href="/assign_roles/{{ code }}" class="action-button assign">Assign Roles</a>
+            {% elif game.roles_revealed %}
+            <h2>Game Started</h2>
+            {% else %}
+            <div></div>
+            {% endif %}
+            <a href="/remove_game/{{ code }}" class="action-button remove" onclick="return confirm('Are you sure you want to remove this game?')">Remove Game</a>
+        </div>
+    </div>
+    {% endfor %}
+
+    <style>
+        .action-button {
+            padding: 8px 16px;
+            border-radius: 4px;
+            text-decoration: none;
+            color: white;
+            font-weight: bold;
+            transition: transform 0.2s, opacity 0.2s;
+        }
+        .action-button:hover {
+            text-decoration: none;
+            transform: translateY(-1px);
+            opacity: 0.9;
+        }
+        .action-button.assign {
+            background-color: #3498db;
+        }
+        .action-button.remove {
+            background-color: #e74c3c;
+        }
+    </style>
+</body>
+<script>
+    let inactivityTime = 0;
+
+    // Reset inactivity timer on user interaction
+    document.onmousemove = document.onkeypress = () => inactivityTime = 0;
+
+    setInterval(() => {
+        let gameCards = document.querySelectorAll(".game-card");
+        let shouldReload = false;
+
+        // Check if any game card has roles not yet revealed
+        gameCards.forEach(card => {
+            if (card.getAttribute("data-revealed") === "False") {
+                shouldReload = true;
+            }
+        });
+
+        // Increase inactivity time
+        inactivityTime += 5;
+
+        // Reload if conditions are met
+        if (shouldReload && inactivityTime >= 5) {
+            location.reload();
+        }
+    }, 5000);
+</script>
+
+    
+</html>

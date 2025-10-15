@@ -1,0 +1,227 @@
+{% extends 'base.html' %} {% block main %}
+<style>
+  .card {
+    width: 100%;
+  }
+
+  .card-img-top {
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+    aspect-ratio: 16/9;
+  }
+  h2 {
+    text-align: center;
+    font-weight: bold;
+  }
+  #accordion {
+    text-align: center;
+  }
+  #new-btn {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 9999;
+  }
+</style>
+<!-- OLD MODE -->
+<div class="container-fluid" id="old-mode">
+<button id="new-btn" class="btn btn-primary">New</button>
+  <h2>List Slot {{name}}</h2>
+  <br />
+  <div id="accordion">
+  <a class="btn btn-secondary" href="{% if session.get('roles') == 'adminuser' %} /admin/page {% elif session.get('roles') == 'superuser' %} /admin/spaces {% endif %}" >Go Back</a>
+  <br><br>
+  {% if spaces %}
+    {% for key, val in spaces.items() %}
+    <div class="card">
+      <div class="card-header" id="heading{{ loop.index }}">
+        <h5 class="mb-0">
+          <button
+            class="btn btn-link"
+            data-toggle="collapse"
+            data-target="#collapse{{ loop.index }}"
+            aria-expanded="true"
+            aria-controls="collapse{{ loop.index }}"
+          >
+            Slot {{ key }}
+          </button>
+        </h5>
+      </div>
+      <div
+        id="collapse{{ loop.index }}"
+        class="collapse"
+        aria-labelledby="heading{{ loop.index }}"
+        data-parent="#accordion"
+      >
+        <!-- View Mode -->
+        <div class="card-body view-mode" id="view-mode{{ loop.index }}">
+          {% for k, v in val.items() %}
+          <p>{{ k }} = {{ v }}</p>
+          {% endfor %}
+          <button class="btn btn-success edit-btn">Edit</button>
+          <a href="{{url_for('delete_slot_list', space=name, slot=key)}}" class="btn btn-danger">Delete</a>
+          <br /><br />
+        </div>
+
+        <!-- Edit Mode -->
+        <div
+          class="card-body edit-mode"
+          id="edit-mode{{ loop.index }}"
+          style="display: none"
+        >
+          <form action="/admin/slot/{{name}}/{{key}}" method="POST">
+            {% for k, v in val.items() %}
+            <div class="form-group">
+              <label for="{{k}}{{key}}">{{ k }}:</label>
+              <textarea
+                type="text"
+                class="form-control"
+                id="{{k}}{{key}}"
+                name="{{k}}{{key}}"
+              >
+{{ v }}</textarea
+              >
+            </div>
+            {% endfor %}
+            <button type="submit" class="btn btn-primary save-btn">
+              Save Changes
+            </button>
+            <button type="button" class="btn btn-secondary cancel-btn">
+              Cancel
+            </button>
+          </form>
+          <br /><br />
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  {% else %}
+  <p>No Slot Yet</p>
+  {% endif %}
+  </div>
+</div>
+
+<!-- NEW MODE -->
+<div id="new-mode" style="display: none">
+  <h2>Add New Slot for {{name}}</h2>
+  <br />
+  <form
+    method="POST"
+    action="/admin/slot/{{name}}"
+    enctype="multipart/form-data"
+  >
+    <div class="form-row">
+      <div class="form-group col-md-4">
+        <label for="kode">Name Code:</label>
+        <input
+          type="text"
+          class="form-control"
+          id="kode"
+          name="kode"
+          value=""
+        />
+      </div>
+      <div class="form-group col-md-4">
+        <label for="nomorawal">Start Number:</label>
+        <input
+          type="number"
+          class="form-control"
+          id="nomorawal"
+          name="nomorawal"
+          value=""
+          min="0"
+        />
+      </div>
+      <div class="form-group col-md-4">
+        <label for="nomorakhir">End Number:</label>
+        <input
+          type="number"
+          class="form-control"
+          id="nomorakhir"
+          name="nomorakhir"
+          value=""
+          min="1"
+        />
+      </div>
+    </div>
+    <div class="form-group">
+      <label for="lantai">Lantai:</label>
+      <input type="text" class="form-control" id="lantai" name="lantai"/>
+    </div>
+    <div class="form-group">
+      <label for="comment">Comment:</label>
+      <textarea
+        type="text"
+        class="form-control"
+        id="comment"
+        name="comment"
+        placeholder="Guide for users to find parking slot"
+      ></textarea>
+    </div>
+    <button type="submit" class="btn btn-primary">Save Changes</button>
+    <button type="button" id="old-btn" class="btn btn-secondary">
+      Cancel
+    </button>
+  </form>
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const accordionItems = document.querySelectorAll(
+      '[data-toggle="collapse"]'
+    );
+    accordionItems.forEach((item) => {
+      item.addEventListener("click", function () {
+        const target = document.querySelector(this.getAttribute("data-target"));
+        if (target.classList.contains("show")) {
+          target.classList.remove("show"); // If open, close it
+        } else {
+          target.classList.add("show"); // If closed, open it
+        }
+      });
+    });
+  });
+  document.addEventListener("DOMContentLoaded", function () {
+    const editButtons = document.querySelectorAll(".edit-btn");
+    editButtons.forEach((button) => {
+      button.addEventListener("click", function () {
+        const parentCollapse = this.closest(".collapse");
+        const viewMode = parentCollapse.querySelector(".view-mode");
+        const editMode = parentCollapse.querySelector(".edit-mode");
+
+        // Toggle display of view mode and edit mode
+        viewMode.style.display = "none";
+        editMode.style.display = "block";
+      });
+    });
+
+    const cancelButtons = document.querySelectorAll(".cancel-btn");
+    cancelButtons.forEach((button) => {
+      button.addEventListener("click", function () {
+        const parentCollapse = this.closest(".collapse");
+        const viewMode = parentCollapse.querySelector(".view-mode");
+        const editMode = parentCollapse.querySelector(".edit-mode");
+
+        // Toggle display of view mode and edit mode
+        viewMode.style.display = "block";
+        editMode.style.display = "none";
+      });
+    });
+  });
+  document.addEventListener("DOMContentLoaded", function () {
+    document
+      .getElementById("new-btn")
+      .addEventListener("click", function () {
+        document.getElementById("old-mode").style.display = "none";
+        document.getElementById("new-mode").style.display = "block";
+      });
+
+    document
+      .getElementById("old-btn")
+      .addEventListener("click", function () {
+        document.getElementById("new-mode").style.display = "none";
+        document.getElementById("old-mode").style.display = "block";
+      });});
+</script>
+{% endblock main%}

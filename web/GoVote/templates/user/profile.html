@@ -1,0 +1,38 @@
+{% extends 'base.html' %}{% block title %} Your Profile {% endblock title %} {%
+block body %}
+<div class="container my-3">
+  <h1>My Profile</h1>
+  <div class="row mt-4">
+    <div class="col-sm-12 col-lg-4 mb-3 justify-content-center">
+      <img
+        src="{{url_for('static', filename='img/images.png')}}"
+        class="img-fluid rounded text-center"
+        width="100%"
+        alt=""
+      />
+    </div>
+    <div class="col-sm-12 col-lg-8 user-detail-information">
+      <div class="text-wrapper row">
+        <p class="title fw-bold col-5">NIK</p>
+        <p class="detail col-7">{{ session.get('nik_ori') }}</p>
+      </div>
+      <div class="text-wrapper row">
+        <p class="title fw-bold col-5">Full Name</p>
+        <p class="detail col-7">{{ session.get('nama_lengkap') }}</p>
+      </div>
+      <div class="text-wrapper row">
+        <p class="title fw-bold col-5">Nama Ibu Kandung</p>
+        <p class="detail col-7">{{ session.get('nama_ibu_kandung') }}</p>
+      </div>
+      <div class="d-grid gap-2">
+        <a href="{{ url_for('getsyarat') }}" class="btn btn-primary">
+          Continue
+        </a>
+        <a href="{{ url_for('logout') }}" class="btn btn-secondary">
+          Have Invalid Personal Information?
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock body %}

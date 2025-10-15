@@ -1,0 +1,227 @@
+{% extends 'base.html' %} {% block main %}
+<style>
+  h2 {
+    font-weight: bold;
+  }
+  h4 {
+    display: inline-block; /* Display h4 elements inline */
+  }
+  .edit-mode {
+    display: none; /* Hide input and buttons by default */
+  }
+</style>
+
+<div class="container-fluid">
+  <div class="profile-details">
+    <h2>Profile User</h2>
+    <br />
+    <h4>Email: {{session['email']}}</h4>
+    <form id="edit-form" class="form-inline" method="post" action="/profile">
+      <h4>
+        Nama:
+        <span id="nameSpan">{{data['name']}}</span>
+        <input
+          type="text"
+          id="nameInput"
+          name="nameInput"
+          value="{{data['name']}}"
+          class="form-control mx-2 edit-mode"
+        />
+      </h4>
+      <button
+        type="submit"
+        id="save-btn"
+        class="btn btn-success mx-2 edit-mode"
+      >
+        Save
+      </button>
+      <button
+        type="button"
+        id="cancel-btn"
+        class="btn btn-secondary mx-2 edit-mode"
+      >
+        Cancel
+      </button>
+    </form>
+    <a class="btn btn-danger" href="/logout">Logout</a>
+    <button id="edit-btn" class="btn btn-primary mx-2">Edit</button>
+  </div>
+  <br />
+  <hr style="border: 1px solid" />
+  <h2 style="text-align: center">Booking dan Order</h2>
+  <br />
+  {% if booking %} {% for key,val in booking.items() %}
+  <div class="card">
+    <div class="card-body">
+      <h5 style="font-weight: bold; text-align: center" class="card-title">
+        {{val['space_name']}} | <span class="card-text">#{{key}}</span>
+      </h5>
+      <p class="card-text" style="text-align: center">
+        {{val['name_date']}} | Tipe: {{val['tipe']|capitalize}} | Slot:
+        {{val['slots']}} | {{val['jam']}} jam
+      </p>
+      {% if val['status'] == "Belum Dibayar" %}
+      <p class="card-text" style="text-align: center; font-weight: bold">
+        Total Payment: Rp.{{ "{:,.0f}".format(val['harga'] | int) }}
+      </p>
+      <p style="text-align: center" class="alert alert-danger">
+        {{val['status']}}
+      </p>
+      <div class="d-flex justify-content-center">
+        <a href='{{url_for("QRIS", name=key)}}' class="btn btn-success">Bayar</a
+        >&nbsp;&nbsp;
+        <button
+          onclick="confirms(`Apakah anda akan yakin untuk dibatalkan?`,`{{url_for('cancel', space=val['space_name'] , book=key)}}`)"
+          class="btn btn-danger"
+        >
+          Batal
+        </button>
+      </div>
+      {% elif val['status'] == "Dibatalkan" %}
+      <p style="text-align: center" class="alert alert-secondary">
+        {{val['status']}}
+      </p>
+      {% else %}
+      <p style="text-align: center" class="alert alert-success">
+        {{val['status']}}
+      </p>
+      {% if val['status'] == "Sudah Dibayar" %}
+      <div class="d-flex justify-content-center">
+        <!-- <button
+          onclick="confirms(`Apakah anda yakin sudah sampai?`,`{{url_for('arrive', book=key)}}`)"
+          class="btn btn-success"
+        >
+          Saya Sudah Sampai
+        </button> -->
+        <!-- Button trigger modal -->
+        <button
+          type="button"
+          class="btn btn-primary"
+          data-toggle="modal"
+          data-target="#exampleModalCenter{{ key }}"
+        >
+          Show QR Code
+        </button>
+      </div>
+
+      <!-- Modal -->
+      <div
+        class="modal fade"
+        id="exampleModalCenter{{ key }}"
+        tabindex="-1"
+        role="dialog"
+        aria-labelledby="exampleModalCenterTitle{{ key }}"
+        aria-hidden="true"
+      >
+        <div class="modal-dialog modal-dialog-centered" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="exampleModalLongTitle{{ key }}">
+                {{val['space_name']}} #{{ key }}
+              </h5>
+              <button
+                type="button"
+                class="close"
+                data-dismiss="modal"
+                aria-label="Close"
+              >
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body d-flex justify-content-center align-items-center">
+              <div>
+                  <h5 style="text-align: center">Slot: {{val['slots']}}</h5>
+                  <p style="text-align: center">
+                      {% for k1, v1 in val['details'].items() %}
+                          Slot {{k1}}: Lantai {{v1['lantai']}}, {{v1['comment']}} <br />
+                      {% endfor %}
+                  </p>
+                  <div class="text-center">
+                      <img src="{{val['image']}}" alt="QR CODE" />
+                  </div>
+              </div>
+          </div>          
+            <div class="modal-footer"> 
+              <button
+                type="button"
+                class="btn btn-secondary"
+                data-dismiss="modal"
+              >
+                Close
+              </button>
+              <button onclick="confirms('Selesaikan Pesanan?', '/arrive/{{key}}')" class="btn btn-success">
+                Selesaikan Pesanan
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endif %} {% endif %}
+    </div>
+  </div>
+  {% endfor %} {% else %}
+  <br /><br />
+  <h2
+    style="
+      font-weight: unset;
+      font-style: italic;
+      color: gray;
+      text-align: center;
+    "
+  >
+    No Booking
+  </h2>
+  {% endif %}
+</div>
+
+<script>
+  function confirms(txt, url) {
+    var isConfirmed = confirm(txt);
+    if (isConfirmed) {
+      window.location.href = url;
+    }
+  }
+
+  document.addEventListener("DOMContentLoaded", function () {
+    const editForm = document.getElementById("edit-form");
+    const editBtn = document.getElementById("edit-btn");
+    const saveBtn = document.getElementById("save-btn");
+    const cancelBtn = document.getElementById("cancel-btn");
+    const nameSpan = document.getElementById("nameSpan");
+    const nameInput = document.getElementById("nameInput");
+    nameInput.style.display = "none";
+
+    editBtn.addEventListener("click", function () {
+      // Show input field, hide span, and toggle buttons
+      nameInput.style.display = "inline-block";
+      nameSpan.style.display = "none";
+      editBtn.style.visibility = "hidden";
+      saveBtn.style.display = "inline-block";
+      cancelBtn.style.display = "inline-block";
+    });
+
+    cancelBtn.addEventListener("click", function () {
+      // Hide input field, show span, and toggle buttons
+      nameInput.style.display = "none";
+      nameSpan.style.display = "inline-block";
+      editBtn.style.visibility = "visible";
+      saveBtn.style.display = "none";
+      cancelBtn.style.display = "none";
+    });
+  });
+
+  document.addEventListener("DOMContentLoaded", function () {
+    var modalTriggerBtn = document.querySelector(
+      '[data-target="#exampleModalCenter"]'
+    );
+    var myModalEl = document.getElementById("exampleModalCenter");
+    var myModal = new bootstrap.Modal(myModalEl);
+
+    modalTriggerBtn.addEventListener("click", function () {
+      myModal.show();
+    });
+  });
+</script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+{% endblock main %}

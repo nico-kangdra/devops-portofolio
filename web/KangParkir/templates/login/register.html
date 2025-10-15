@@ -1,0 +1,118 @@
+{% extends 'base.html' %} {% block main %}
+<h2 style="text-align: center; font-weight: bold">Register</h2>
+<div class="container-fluid">
+  <div class="row justify-content-center mt-5">
+    <div class="col-md-6">
+      <form method="post" action="/register" onsubmit="return validateForm()">
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input
+            required
+            type="email"
+            class="form-control"
+            id="email"
+            name="email"
+            placeholder="Enter your email"
+          />
+        </div>
+        <div class="form-group">
+          <label for="name">Name</label>
+          <input
+            required
+            type="text"
+            class="form-control"
+            id="name"
+            name="name"
+            placeholder="Enter your name"
+          />
+        </div>
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input
+            required
+            minlength="6"
+            type="password"
+            class="form-control"
+            id="password"
+            name="password"
+            placeholder="Enter your password"
+            pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{6,}"
+          />
+        </div>
+        <div class="form-text text-danger mb-2">
+          <div class="row">
+            <div class="col">
+              <span id="chr">At least 6 characters</span>
+              <br />
+              <span id="nm">1 Number</span>
+            </div>
+
+            <div class="col">
+              <span id="up">1 UPPERCASE</span>
+              <br />
+              <span id="lw">1 lowercase</span>
+            </div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="confirmPassword">Confirm Password</label>
+          <input
+            required
+            minlength="6"
+            type="password"
+            class="form-control"
+            id="confirmPassword"
+            name="confirmPassword"
+            placeholder="Confirm your password"
+            pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{6,}"
+          />
+          <span id="passwordError" style="color: red"></span>
+        </div>
+        <button type="submit" class="btn btn-primary">Register</button>
+      </form>
+      <br />
+      {% for message in get_flashed_messages() %}
+      <h5 class="alert alert-danger">{{ message }}</h5>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+<script>
+    document
+          .getElementById("password")
+          .addEventListener("keyup", function () {
+            var Value = document.getElementById("password").value;
+            if (Value != Value.toLowerCase())
+              document.getElementById("up").style.color = "green";
+            else document.getElementById("up").style.color = "red";
+
+            if (Value != Value.toUpperCase())
+              document.getElementById("lw").style.color = "green";
+            else document.getElementById("lw").style.color = "red";
+
+            if (/\d/.test(Value))
+              document.getElementById("nm").style.color = "green";
+            else document.getElementById("nm").style.color = "red";
+
+            if (Value.length >= 6)
+              document.getElementById("chr").style.color = "green";
+            else document.getElementById("chr").style.color = "red";
+          });
+
+  function validateForm() {
+    var password = document.getElementById("password").value;
+    var confirmPassword = document.getElementById("confirmPassword").value;
+    var passwordError = document.getElementById("passwordError");
+
+    if (password !== confirmPassword) {
+      passwordError.textContent = "Passwords do not match";
+      return false;
+    } else {
+      passwordError.textContent = "";
+      return true;
+    }
+  }
+</script>
+
+{% endblock %}

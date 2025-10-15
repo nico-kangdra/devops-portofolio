@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kangparkir-deployment
+  labels:
+    app: kangparkir
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kangparkir
+  template:
+    metadata:
+      labels:
+        app: kangparkir
+    spec:
+      containers:
+        - name: kangparkir
+          image: nkangdra/kang-parkir:latest
+          ports:
+            - containerPort: 8080
+          volumeMounts:
+            - name: config-kangparkir-volume
+              mountPath: /app/secret.py
+              subPath: secret.py
+      volumes:
+        - name: config-kangparkir-volume
+          configMap:
+            name: kangparkir-config
+      imagePullSecrets:
+        - name: nkangdra
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: kangparkir-service
+spec:
+  type: ClusterIP
+  selector:
+    app: kangparkir
+  ports:
+    - port: 8080
+      targetPort: 8080

@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: wako-config
+data:
+  DOTNET_ENVIRONMENT: {{ .Values.environment | quote }}
+  AZURE_CLIENT_ID: "2cbcd37f-9132-4aec-a3f4-9ff88fb3a493"
+  AZURE_TENANT_ID: "02a1fab9-a71b-449d-ac9d-aa744c8ae582"
+  AZURE_CLIENT_SECRET: "wBo8Q~D19umv10LomPhffuqQUla~X0ZSItr_aaYH"
+  ASPNETCORE_URLS: "http://+:80"

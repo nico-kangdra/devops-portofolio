@@ -1,0 +1,24 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: kangparkir-ingress
+  # namespace: nick
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-cert
+spec:
+  ingressClassName: nginx
+  tls:
+  - hosts:
+    - kangparkir.nk.sytes.net
+    secretName: kangparkir-cert
+  rules:
+  - host: kangparkir.nk.sytes.net
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: kangparkir-service
+            port:
+              number: 8080

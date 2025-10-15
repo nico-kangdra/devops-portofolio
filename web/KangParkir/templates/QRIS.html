@@ -1,0 +1,31 @@
+{% extends 'base.html' %} {% block main %}
+<style>
+  .img-container {
+    width: 100%;
+    max-width: 800px; /* Set a maximum width for better responsiveness */
+    margin: auto; /* Center the container horizontally */
+  }
+  .img-top {
+    width: 100%;
+    height: auto;
+    object-fit: contain;
+  }
+  #btn-bayar{
+    width: 100%;
+  }
+</style>
+<div class="img-container">
+  <hr onclick="gogogo(`{{url_for('paid', book=name)}}`)">
+  <img
+    class="img-top"
+    src="{{url_for('static', filename='QRIS.png')}}"
+    alt="QRIS"
+  />
+  <br><br>
+  <a href="/profile" id="btn-bayar" class="btn btn-success">Sudah Bayar</a>
+  <br><br>  
+</div>
+<script>
+  function gogogo(url) {window.location.href = url;}
+</script>
+{% endblock main %}

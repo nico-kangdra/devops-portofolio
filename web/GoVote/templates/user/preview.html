@@ -1,0 +1,40 @@
+{% extends 'base.html' %}{% block title %} Live counts {% endblock title %}{%
+block body %}
+<div class="preview-section container">
+  <h1 class="text-center">Live Counts</h1>
+  <div class="row justify-content-center align-items-center">
+    <div class="col-sm-12 col-md-4 text-center">
+      <img
+        src="{{url_for('static', filename='img/amin.webp')}}"
+        class="img-fluid rounded"
+        alt=""
+      />
+      <h3>Anies B - Muhaimin</h3>
+      <h1>{{res[0]}}%</h1>
+    </div>
+    <div class="col-sm-12 col-md-4 text-center">
+      <img
+        src="{{url_for('static', filename='img/pragib.webp')}}"
+        class="img-fluid rounded"
+        alt=""
+      />
+      <h3>Prabowo - Gibran</h3>
+      <h1>{{res[1]}}%</h1>
+    </div>
+    <div class="col-sm-12 col-md-4 text-center">
+      <img
+        src="{{url_for('static', filename='img/gafud.webp')}}"
+        class="img-fluid rounded"
+        alt=""
+      />
+      <h3>Ganjar - Mahfud MD</h3>
+      <h1>{{res[2]}}%</h1>
+    </div>
+  </div>
+  {% if session.get('nik') %}
+  <div class="d-grid col-12 mx-auto">
+    <a href="{{url_for('logout')}}" class="btn btn-primary">Logout</a>
+  </div>
+  {% endif %}
+</div>
+{% endblock body %}

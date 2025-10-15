@@ -1,0 +1,64 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Player View</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Arial', sans-serif;
+            line-height: 1.6;
+            padding: 20px;
+            background: #f5f5f5;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            text-align: center;
+            width: 100%;
+            max-width: 400px;
+        }
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+        h2 {
+            color: #3498db;
+            margin: 10px 0;
+        }
+        p {
+            color: #666;
+            font-size: 18px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Game Room</h1>
+        {% if show_role %}
+            <h2>Name: {{ role['name'] }}</h2>
+            <h2>Role: {{ role['role'] }}</h2>
+        {% else %}
+            <p id="waitingMessage">Waiting for admin to assign roles...</p>
+        {% endif %}
+    </div>
+</body>
+<script>
+    setInterval(() => {
+        let waitingMessage = document.getElementById("waitingMessage");
+        if (waitingMessage) {
+            location.reload();
+        }
+    }, 5000);
+</script>
+    
+</html>

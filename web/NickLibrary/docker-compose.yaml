@@ -1,0 +1,8 @@
+services:
+  nick-library:
+    build: .
+    image: nicklib:latest
+    ports:
+      - "3000:3000"
+    container_name: nick-library
+    restart: always

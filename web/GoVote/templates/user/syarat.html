@@ -1,0 +1,40 @@
+{% extends 'base.html' %} {% block title %} Syarat & Ketentuan {% endblock title
+%} {% block body %}
+<div class="container my-3">
+  <h1 class="text-center mb-3">Syarat & Ketentuan</h1>
+
+  <ul>
+    <li>Pemilih harus menjadi warga negara Indonesia.</li>
+    <li>Harus memiliki KTP (Kartu Tanda Penduduk) sebagai bukti identitas.</li>
+    <li>Pemilih harus mencapai usia minimal 17 tahun.</li>
+    <li>
+      Pemilih harus terdaftar secara resmi dalam Daftar Pemilih Tetap (DPT) yang
+      disediakan oleh Komisi Pemilihan Umum (KPU).
+    </li>
+    <li>
+      Pemilih tidak boleh memiliki catatan yang mencabut hak pilih, seperti
+      status terpidana kejahatan yang melibatkan pemilihan umum.
+    </li>
+    <li>
+      Pemilih penyandang cacat juga memiliki hak untuk memberikan suaranya
+      dengan fasilitas yang memadai.
+    </li>
+    <li>
+      Pemilih diharapkan memahami penggunaan aplikasi pemilihan dan memastikan
+      koneksi internet yang stabil.
+    </li>
+    <li>
+      Pemilih harus mengikuti tata cara yang ditetapkan oleh KPU untuk
+      menggunakan aplikasi pemilihan presiden.
+    </li>
+    <li>
+      Pemilih diingatkan untuk menjaga kerahasiaan pilihan mereka dan tidak
+      memberikan informasi pribadi atau kata sandi kepada pihak lain.
+    </li>
+  </ul>
+
+  <div class="d-grid col-12 mx-auto">
+    <a href="{{ url_for('verif') }}" class="btn btn-primary">Voting Now!</a>
+  </div>
+</div>
+{% endblock body %}

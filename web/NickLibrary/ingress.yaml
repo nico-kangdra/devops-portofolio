@@ -1,0 +1,24 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: nicklibrary-ingress
+  # namespace: nicklibrary
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-cert
+spec:
+  ingressClassName: nginx
+  tls:
+  - hosts:
+    - nick.nk.sytes.net
+    secretName: nicklibrary-cert
+  rules:
+  - host: nick.nk.sytes.net
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: nicklibrary-service
+            port:
+              number: 3000

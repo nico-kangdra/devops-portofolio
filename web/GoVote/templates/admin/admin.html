@@ -1,0 +1,48 @@
+{% extends 'base.html' %}{% block title %} Admin Dashboard {% endblock title %}
+{% block body %}
+<div class="container my-3">
+  <form method="post">
+    <h2>Add New Entry</h2>
+    <div class="row">
+      <form method="post">
+        <div class="col">
+          <input class="form-control" type="number" placeholder="NIK" name="nik" id="nik" min="0" required />
+        </div>
+        <div class="col">
+          <input class="form-control" type="text" placeholder="Nama Lengkap" name="nama_lengkap" id="nama_lengkap"
+            required />
+        </div>
+        <div class="col">
+          <input class="form-control" type="text" placeholder="Nama Ibu Kandung" name="nama_ibu_kandung"
+            id="nama_ibu_kandung" required />
+        </div>
+        <div class="col">
+          <input type="submit" class="btn btn-primary" value="Add User">
+          <a href="{{url_for('logout')}}" class="btn btn-danger">Logout</a>
+        </div>
+      </form>
+    </div>
+  </form>
+
+  <table class="table mt-4">
+    <tr>
+      <th scope="col">NIK</th>
+      <th scope="col">Nama Lengkap</th>
+      <th scope="col">Nama Ibu Kandung</th>
+      <th scope="col">Action</th>
+    </tr>
+    {% for x in data %} {% if x[1] != "admin" %}
+    <tr>
+      {% for y in x %}
+      <td>{{y}}</td>
+      {% endfor %}
+      <td>
+        <form action="/deletes/{{x[0]}}" method="post">
+          <button type="button" class="btn btn-danger">Delete</button>
+        </form>
+      </td>
+    </tr>
+    {% endif %} {% endfor %}
+  </table>
+</div>
+{% endblock body %}

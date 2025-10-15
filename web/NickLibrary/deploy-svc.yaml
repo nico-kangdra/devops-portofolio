@@ -1,0 +1,65 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nicklibrary-deployment
+  labels:
+    app: nicklibrary
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nicklibrary
+  template:
+    metadata:
+      labels:
+        app: nicklibrary
+    spec:
+      containers:
+        - name: nicklibrary
+          image: nkangdra/nick-library:latest
+          ports:
+            - containerPort: 3000
+          volumeMounts:
+            - name: config-nicklibrary-volume
+              mountPath: /app/.env
+              subPath: .env
+            - name: nicklibrary-storage
+              mountPath: /app/files
+      volumes:
+        - name: config-nicklibrary-volume
+          configMap:
+            name: nicklibrary-config
+        - name: nicklibrary-storage
+          persistentVolumeClaim:
+            claimName: nicklibrary-pvc
+      imagePullSecrets:
+        - name: nkangdra
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: nicklibrary-service
+spec:
+  type: ClusterIP
+  selector:
+    app: nicklibrary
+  ports:
+    - port: 3000
+      targetPort: 3000
+
+---
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: nicklibrary-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
+  storageClassName: local-path
+

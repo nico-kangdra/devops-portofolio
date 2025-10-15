@@ -1,0 +1,15 @@
+/* Root */
+:root {
+  --main: #121c40;
+}
+
+/* Login Section */
+.login-section,
+.preview-section {
+  height: 100vh;
+}
+
+.login-section .login-header {
+  height: 100%;
+  background-color: var(--main);
+}

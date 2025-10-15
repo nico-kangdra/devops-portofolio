@@ -1,0 +1,97 @@
+steps:
+  ### Set checkout config
+  - checkout: self
+    clean: true
+    fetchDepth: 2
+
+  ### Detect all changed files and folders
+  - script: |
+      files=$(git diff --name-only HEAD~1 HEAD | paste -sd, -)
+      echo "##vso[task.setvariable variable=CHANGEDFOLDERS]$files"
+    displayName: 'Detect All Changes'
+
+  ### Step 1: Login to Azure and ACR
+  - task: AzureCLI@2
+    displayName: 'Login to Azure and Azure Container Registry'
+    inputs:
+      azureSubscription: $(SUBSCRIPTION)
+      scriptType: bash
+      scriptLocation: inlineScript
+      inlineScript: |
+        echo $(ACRPRODPASSWORD) | docker login -u $(ACRPRODUSERNAME) $(ACRPRODLOGINSERVER) --password-stdin
+        echo 'Tag: $(TAG)'
+        echo 'Changes: $(CHANGEDFOLDERS)'
+
+  ### Step 2: Build and Push Images
+  - template: pipelines/container-templates-main.yml
+    parameters:
+      DOCKERPATH: 'Services/Model/Model.API'
+      IMAGENAME: 'modelapi'
+      containerName: 'modelapi'
+      targetFolder: 'Model'
+
+  - template: pipelines/container-templates-main.yml
+    parameters:
+      DOCKERPATH: 'Services/User/User.API'
+      IMAGENAME: 'userapi'
+      containerName: 'userapi'
+      targetFolder: 'User'
+
+  - template: pipelines/container-templates-main.yml
+    parameters:
+      DOCKERPATH: 'Services/Order/Order.API'
+      IMAGENAME: 'orderapi'
+      containerName: 'orderapi'
+      targetFolder: 'Order'
+
+  - template: pipelines/container-templates-main.yml
+    parameters:
+      DOCKERPATH: 'Services/Patient/Patient.API'
+      IMAGENAME: 'patientapi'
+      containerName: 'patientapi'
+      targetFolder: 'Patient'
+
+  - template: pipelines/container-templates-main.yml
+    parameters:
+      DOCKERPATH: 'Services/Product/Product.API'
+      IMAGENAME: 'productapi'
+      containerName: 'productapi'
+      targetFolder: 'Product'
+
+  - template: pipelines/container-templates-main.yml
+    parameters:
+      DOCKERPATH: 'Services/Scan/Scan.API'
+      IMAGENAME: 'scanapi'
+      containerName: 'scanapi'
+      targetFolder: 'Scan'
+
+  - template: pipelines/container-templates-main.yml
+    parameters:
+      DOCKERPATH: 'Services/FormBuilder/FormBuilder.API'
+      IMAGENAME: 'formbuilderapi'
+      containerName: 'formbuilderapi'
+      targetFolder: 'FormBuilder'
+
+  - template: pipelines/container-templates-main.yml
+    parameters:
+      DOCKERPATH: 'ApiGateways/Web.ApiGateway'
+      IMAGENAME: 'webapigateway'
+      containerName: 'webapigateway'
+      targetFolder: 'WebApiGateway'
+
+  ### Step 3: Run EF Migration
+  - task: Bash@3
+    displayName: 'EF Migration'
+    inputs:
+      targetType: 'inline'
+      script: |
+        set -e
+        docker build -t ef-migration . -f DatabaseSetup/Dockerfile
+        docker run --rm \
+          -e ENVIRONMENT=Production \
+          -e AZURE_CLIENT_ID=$(AZURECLIENTID) \
+          -e AZURE_TENANT_ID=$(AZURETENANTID) \
+          -e AZURE_CLIENT_SECRET=$(AZURECLIENTSECRET) \
+          ef-migration
+        docker rmi ef-migration
+        docker system prune -a --volumes -f
