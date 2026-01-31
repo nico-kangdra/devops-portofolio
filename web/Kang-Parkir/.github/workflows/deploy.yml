@@ -34,3 +34,17 @@ jobs:
 
       - name: Print Image Tag
         run: echo "Image built and pushed with tag v${{ github.run_number }}"
+
+      - name: Update GitOps Repository
+        run: |
+          git clone https://x-access-token:${{ secrets.GITOPS_TOKEN }}@github.com/nico-kangdra/gitops.git
+          cd gitops/helm/kangparkir
+          sed -i "s/^version:.*/version: v${{ github.run_number }}/" values.yaml
+          git config user.email "kangparkir@nickeverest.site"
+          git config user.name "kangparkir-bot"
+          git add values.yaml
+          git commit -m "Update kangparkir to v${{ github.run_number }}"
+          git push
+          echo "GitOps repository has been updated."
+
+
